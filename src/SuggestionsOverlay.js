@@ -34,18 +34,18 @@ class SuggestionsOverlay extends Component {
     top = top - topContainer + scrollTop;
     bottom = bottom - topContainer + scrollTop;
 
-    if(top < scrollTop) {
+    if (top < scrollTop) {
       suggestions.scrollTop = top
-    } else if(bottom > suggestions.offsetHeight) {
+    } else if (bottom > suggestions.offsetHeight) {
       suggestions.scrollTop = bottom - suggestions.offsetHeight
     }
   }
 
-  render() {
+  performRender = () => {
     const { suggestions, isLoading, style, onMouseDown } = this.props;
 
     // do not show suggestions until there is some data
-    if(utils.countSuggestions(suggestions) === 0 && !isLoading) {
+    if (utils.countSuggestions(suggestions) === 0 && !isLoading) {
       return null;
     }
 
@@ -59,12 +59,26 @@ class SuggestionsOverlay extends Component {
           ref="suggestions"
           { ...style("list") }
         >
-          { this.renderSuggestions() }
+          {this.renderSuggestions()}
         </ul>
 
-        { this.renderLoadingIndicator() }
+        {this.renderLoadingIndicator()}
       </div>
     );
+  }
+
+  render() {
+    const { suggestionsRenderer: SuggestionsRenderer, ...restProps } = this.props;
+    if (SuggestionsRenderer) {
+      return (
+        <SuggestionsRenderer
+          {...restProps}
+          render={this.performRender}
+        />
+      );
+    }
+
+    return this.performRender();
   }
 
   renderSuggestions() {
@@ -88,29 +102,29 @@ class SuggestionsOverlay extends Component {
     return (
       <Suggestion
         style={this.props.style("item")}
-        key={ id }
-        id={ id }
+        key={id}
+        id={id}
         ref={isFocused ? "focused" : null}
-        query={ query }
-        index={ index }
-        descriptor={ mentionDescriptor }
-        suggestion={ suggestion }
-        focused={ isFocused }
-        onClick={ () => this.select(suggestion, descriptor) }
-        onMouseEnter={ () => this.handleMouseEnter(index) } />
+        query={query}
+        index={index}
+        descriptor={mentionDescriptor}
+        suggestion={suggestion}
+        focused={isFocused}
+        onClick={() => this.select(suggestion, descriptor)}
+        onMouseEnter={() => this.handleMouseEnter(index)} />
     );
   }
 
   getID(suggestion) {
-    if(suggestion instanceof String) {
+    if (suggestion instanceof String) {
       return suggestion;
     }
 
     return suggestion.id;
   }
 
-  renderLoadingIndicator () {
-    if(!this.props.isLoading) {
+  renderLoadingIndicator() {
+    if (!this.props.isLoading) {
       return;
     }
 
@@ -118,7 +132,7 @@ class SuggestionsOverlay extends Component {
   }
 
   handleMouseEnter(index, ev) {
-    if(this.props.onMouseEnter) {
+    if (this.props.onMouseEnter) {
       this.props.onMouseEnter(index);
     }
   }
